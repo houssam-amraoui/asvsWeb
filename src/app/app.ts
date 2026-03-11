@@ -14,33 +14,43 @@ export class App implements OnInit {
   asvsVersion = '';
   requirements: Requirement[] = [];
   selectedRequirement?: Requirement;
+  isLoading = true;
+  errorMessage = '';
 
   constructor(private readonly dataService: DataService) {}
 
   ngOnInit(): void {
-    this.dataService.getAsvsData().subscribe((data) => {
-      this.asvsName = `${data.ShortName} - ${data.Name}`;
-      this.asvsVersion = data.Version;
-      this.requirements = data.Requirements;
-      this.selectedRequirement = data.Requirements[0];
-      this.selectedRequirement?.Items.forEach((section) => {
-        section.Items.forEach((item) => {
-          item.status = item.status ?? '';
-        });
-      });
+    this.dataService.getAsvsData().subscribe({
+      next: (data) => {
+        this.asvsName = `${data.ShortName} - ${data.Name}`;
+        this.asvsVersion = data.Version;
+        this.requirements = data.Requirements;
+        this.selectedRequirement = data.Requirements[0];
+        this.ensureItemStatuses();
+        this.isLoading = false;
+      },
+      error: () => {
+        this.errorMessage =
+          'Unable to load ASVS data from src/assets/result.json. Please verify the file exists and is included in angular.json assets.';
+        this.isLoading = false;
+      }
     });
   }
 
   selectRequirement(requirement: Requirement): void {
     this.selectedRequirement = requirement;
-    this.selectedRequirement.Items.forEach((section) => {
-      section.Items.forEach((item) => {
-        item.status = item.status ?? '';
-      });
-    });
+    this.ensureItemStatuses();
   }
 
   setStatus(item: VerificationItem, status: 'PASS' | 'FAIL' | 'N/A'): void {
     item.status = status;
+  }
+
+  private ensureItemStatuses(): void {
+    this.selectedRequirement?.Items.forEach((section) => {
+      section.Items.forEach((item) => {
+        item.status = item.status ?? '';
+      });
+    });
   }
 }

@@ -23,7 +23,11 @@
         <p class="text-muted mb-0">Version {{ asvsVersion }}</p>
       </header>
 
-      @if (selectedRequirement) {
+      @if (isLoading) {
+        <div class="alert alert-info">Loading ASVS data...</div>
+      } @else if (errorMessage) {
+        <div class="alert alert-danger">{{ errorMessage }}</div>
+      } @else if (selectedRequirement) {
         <section>
           <h3 class="mb-2">{{ selectedRequirement.Name }}</h3>
           <p class="text-secondary mb-4">{{ selectedRequirement.Description || 'No description available.' }}</p>
@@ -124,6 +128,8 @@
             }
           </div>
         </section>
+      } @else {
+        <div class="alert alert-warning">No requirements found in the loaded ASVS JSON.</div>
       }
     </main>
   </div>
