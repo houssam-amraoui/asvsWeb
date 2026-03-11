@@ -1,0 +1,92 @@
+{
+  "Name": "Application Security Verification Standard Project",
+  "ShortName": "ASVS",
+  "Version": "4.0.3",
+  "Description": "The Application Security Verification Standard provides a basis for testing web application technical security controls.",
+  "Requirements": [
+    {
+      "Shortcode": "V1",
+      "Ordinal": 1,
+      "ShortName": "Architecture",
+      "Name": "Architecture, Design and Threat Modeling",
+      "Description": "Requirements for secure architecture, design, and threat modeling practices.",
+      "Items": [
+        {
+          "Shortcode": "V1.1",
+          "Ordinal": 1,
+          "Name": "Secure Software Development Lifecycle",
+          "Items": [
+            {
+              "id": "1.1.1",
+              "asvs_level": 2,
+              "cwe": "CWE-1059",
+              "verification_requirement": "Verify the use of a secure software development lifecycle that addresses security in all phases.",
+              "comment": "",
+              "tool_used": "",
+              "source_code_reference": ""
+            },
+            {
+              "id": "1.1.2",
+              "asvs_level": 3,
+              "cwe": "CWE-693",
+              "verification_requirement": "Verify that security requirements are defined and tracked as part of release planning.",
+              "comment": "",
+              "tool_used": "",
+              "source_code_reference": ""
+            }
+          ]
+        },
+        {
+          "Shortcode": "V1.2",
+          "Ordinal": 2,
+          "Name": "Supplier Security",
+          "Items": [
+            {
+              "id": "1.2.1",
+              "asvs_level": 1,
+              "cwe": "",
+              "verification_requirement": "Verify that all software components are identified and their provenance is tracked.",
+              "comment": "",
+              "tool_used": "",
+              "source_code_reference": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Shortcode": "V2",
+      "Ordinal": 2,
+      "ShortName": "Authentication",
+      "Name": "Authentication Verification Requirements",
+      "Description": "Requirements to establish secure and resilient authentication controls.",
+      "Items": [
+        {
+          "Shortcode": "V2.1",
+          "Ordinal": 1,
+          "Name": "Password Security",
+          "Items": [
+            {
+              "id": "2.1.1",
+              "asvs_level": 1,
+              "cwe": "CWE-521",
+              "verification_requirement": "Verify that user passwords are at least 12 characters in length for normal accounts.",
+              "comment": "",
+              "tool_used": "",
+              "source_code_reference": ""
+            },
+            {
+              "id": "2.1.2",
+              "asvs_level": 2,
+              "cwe": "CWE-307",
+              "verification_requirement": "Verify that account lockout or rate limiting is implemented for repeated failed authentication attempts.",
+              "comment": "",
+              "tool_used": "",
+              "source_code_reference": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
