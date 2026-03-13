@@ -4,6 +4,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { App } from './app';
 
 describe('App', () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
@@ -88,5 +92,72 @@ describe('App', () => {
     expect(app.selectedRequirementStats.score).toBe(50);
     expect(app.overallStats.total).toBe(4);
     expect(app.unselectedItems.map((item) => item.id)).toEqual(['1.1.3']);
+  });
+
+  it('should restore persisted selection state after reload', () => {
+    localStorage.setItem(
+      'asvs-selection-state-v1',
+      JSON.stringify({
+        selectedRequirementShortcode: 'V2',
+        items: {
+          '1.1.1': {
+            status: 'PASS',
+            comment: 'saved comment',
+            tool_used: 'saved tool',
+            source_code_reference: 'saved ref'
+          }
+        }
+      })
+    );
+
+    const fixture = TestBed.createComponent(App);
+    const req = TestBed.inject(HttpTestingController).expectOne('assets/result.json');
+    req.flush({
+      Name: 'ASVS',
+      ShortName: 'ASVS',
+      Version: '4.0.3',
+      Description: 'desc',
+      Requirements: [
+        {
+          Shortcode: 'V1',
+          Ordinal: 1,
+          ShortName: 'Architecture',
+          Name: 'Architecture requirements',
+          Description: 'desc',
+          Items: [
+            {
+              Shortcode: 'V1.1',
+              Ordinal: 1,
+              Name: 'Section',
+              Items: [
+                {
+                  id: '1.1.1',
+                  asvs_level: 1,
+                  cwe: 'CWE-1',
+                  verification_requirement: 'Req 1'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          Shortcode: 'V2',
+          Ordinal: 2,
+          ShortName: 'Auth',
+          Name: 'Authentication requirements',
+          Description: 'desc',
+          Items: []
+        }
+      ]
+    });
+
+    const app = fixture.componentInstance;
+    const item = app.requirements[0].Items[0].Items[0];
+
+    expect(app.selectedRequirement?.Shortcode).toBe('V2');
+    expect(item.status).toBe('PASS');
+    expect(item.comment).toBe('saved comment');
+    expect(item.tool_used).toBe('saved tool');
+    expect(item.source_code_reference).toBe('saved ref');
   });
 });

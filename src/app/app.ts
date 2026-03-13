@@ -15,6 +15,18 @@ interface ComplianceStats {
   score: number;
 }
 
+interface PersistedItemState {
+  status: VerificationStatus;
+  comment?: string;
+  tool_used?: string;
+  source_code_reference?: string;
+}
+
+interface PersistedSelectionState {
+  selectedRequirementShortcode?: string;
+  items: Record<string, PersistedItemState>;
+}
+
 @Component({
   selector: 'app-root',
   imports: [CommonModule, FormsModule],
@@ -28,6 +40,7 @@ export class App implements OnInit {
   selectedRequirement?: Requirement;
   isLoading = true;
   errorMessage = '';
+  private readonly storageKey = 'asvs-selection-state-v1';
 
   constructor(
     private readonly dataService: DataService,
@@ -40,7 +53,8 @@ export class App implements OnInit {
         this.asvsName = `${data.ShortName} - ${data.Name}`;
         this.asvsVersion = data.Version;
         this.requirements = data.Requirements;
-        this.selectedRequirement = data.Requirements[0];
+        this.applyPersistedState();
+        this.selectedRequirement = this.resolveSelectedRequirement() ?? data.Requirements[0];
         this.ensureItemStatuses();
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -57,10 +71,16 @@ export class App implements OnInit {
   selectRequirement(requirement: Requirement): void {
     this.selectedRequirement = requirement;
     this.ensureItemStatuses();
+    this.persistSelectionState();
   }
 
   setStatus(item: VerificationItem, status: 'PASS' | 'FAIL' | 'N/A'): void {
     item.status = status;
+    this.persistSelectionState();
+  }
+
+  onItemUpdated(): void {
+    this.persistSelectionState();
   }
 
   get overallStats(): ComplianceStats {
@@ -120,5 +140,86 @@ export class App implements OnInit {
         item.status = item.status ?? '';
       });
     });
+  }
+
+  private resolveSelectedRequirement(): Requirement | undefined {
+    const state = this.getPersistedState();
+    if (!state?.selectedRequirementShortcode) {
+      return undefined;
+    }
+
+    return this.requirements.find((requirement) => requirement.Shortcode === state.selectedRequirementShortcode);
+  }
+
+  private applyPersistedState(): void {
+    const state = this.getPersistedState();
+    if (!state) {
+      return;
+    }
+
+    this.requirements.forEach((requirement) => {
+      requirement.Items.forEach((section) => {
+        section.Items.forEach((item) => {
+          const persistedItem = state.items[item.id];
+          if (!persistedItem) {
+            return;
+          }
+
+          item.status = persistedItem.status ?? '';
+          item.comment = persistedItem.comment;
+          item.tool_used = persistedItem.tool_used;
+          item.source_code_reference = persistedItem.source_code_reference;
+        });
+      });
+    });
+  }
+
+  private persistSelectionState(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    const items: Record<string, PersistedItemState> = {};
+
+    this.requirements.forEach((requirement) => {
+      requirement.Items.forEach((section) => {
+        section.Items.forEach((item) => {
+          items[item.id] = {
+            status: item.status ?? '',
+            comment: item.comment,
+            tool_used: item.tool_used,
+            source_code_reference: item.source_code_reference
+          };
+        });
+      });
+    });
+
+    const state: PersistedSelectionState = {
+      selectedRequirementShortcode: this.selectedRequirement?.Shortcode,
+      items
+    };
+
+    localStorage.setItem(this.storageKey, JSON.stringify(state));
+  }
+
+  private getPersistedState(): PersistedSelectionState | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    const rawState = localStorage.getItem(this.storageKey);
+    if (!rawState) {
+      return null;
+    }
+
+    try {
+      const parsedState = JSON.parse(rawState) as PersistedSelectionState;
+      return {
+        selectedRequirementShortcode: parsedState.selectedRequirementShortcode,
+        items: parsedState.items ?? {}
+      };
+    } catch {
+      return null;
+    }
   }
 }

@@ -140,6 +140,7 @@
                                   class="form-control"
                                   rows="3"
                                   [(ngModel)]="item.comment"
+                                  (ngModelChange)="onItemUpdated()"
                                   placeholder="Add verification notes"
                                 ></textarea>
                               </div>
@@ -148,6 +149,7 @@
                                 <input
                                   class="form-control"
                                   [(ngModel)]="item.tool_used"
+                                  (ngModelChange)="onItemUpdated()"
                                   placeholder="e.g. Burp Suite"
                                 />
                               </div>
@@ -156,6 +158,7 @@
                                 <input
                                   class="form-control"
                                   [(ngModel)]="item.source_code_reference"
+                                  (ngModelChange)="onItemUpdated()"
                                   placeholder="e.g. src/auth/login.service.ts:42"
                                 />
                               </div>
