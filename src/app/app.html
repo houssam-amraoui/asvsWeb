@@ -29,8 +29,50 @@
         <div class="alert alert-danger">{{ errorMessage }}</div>
       } @else if (selectedRequirement) {
         <section>
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-lg-6">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                  <p class="text-uppercase text-muted small mb-2">Global compliance score</p>
+                  <h3 class="mb-1">{{ overallStats.score }}%</h3>
+                  <p class="mb-0 text-secondary">
+                    {{ overallStats.passed }} PASS / {{ overallStats.applicable }} applicable measures
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                  <p class="text-uppercase text-muted small mb-2">Current requirement coverage</p>
+                  <h3 class="mb-1">{{ selectedRequirementStats.score }}%</h3>
+                  <p class="mb-0 text-secondary">
+                    {{ selectedRequirementStats.unselected }} unselected measure(s)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <h3 class="mb-2">{{ selectedRequirement.Name }}</h3>
-          <p class="text-secondary mb-4">{{ selectedRequirement.Description || 'No description available.' }}</p>
+          <p class="text-secondary mb-2">{{ selectedRequirement.Description || 'No description available.' }}</p>
+          <div class="d-flex gap-2 flex-wrap mb-4">
+            <span class="badge text-bg-success">PASS: {{ selectedRequirementStats.passed }}</span>
+            <span class="badge text-bg-danger">FAIL: {{ selectedRequirementStats.failed }}</span>
+            <span class="badge text-bg-secondary">N/A: {{ selectedRequirementStats.notApplicable }}</span>
+            <span class="badge text-bg-warning">Unselected: {{ selectedRequirementStats.unselected }}</span>
+          </div>
+
+          @if (unselectedItems.length > 0) {
+            <div class="alert alert-warning mb-4">
+              <strong>Unselected measures detected:</strong>
+              <ul class="mb-0 mt-2 ps-3">
+                @for (item of unselectedItems; track item.id) {
+                  <li>{{ item.id }} — {{ item.verification_requirement }}</li>
+                }
+              </ul>
+            </div>
+          }
 
           <div class="accordion accordion-custom" id="asvsAccordion">
             @for (section of selectedRequirement.Items; track section.Shortcode; let sectionIndex = $index) {
@@ -98,6 +140,7 @@
                                   class="form-control"
                                   rows="3"
                                   [(ngModel)]="item.comment"
+                                  (ngModelChange)="onItemUpdated()"
                                   placeholder="Add verification notes"
                                 ></textarea>
                               </div>
@@ -106,6 +149,7 @@
                                 <input
                                   class="form-control"
                                   [(ngModel)]="item.tool_used"
+                                  (ngModelChange)="onItemUpdated()"
                                   placeholder="e.g. Burp Suite"
                                 />
                               </div>
@@ -114,6 +158,7 @@
                                 <input
                                   class="form-control"
                                   [(ngModel)]="item.source_code_reference"
+                                  (ngModelChange)="onItemUpdated()"
                                   placeholder="e.g. src/auth/login.service.ts:42"
                                 />
                               </div>
