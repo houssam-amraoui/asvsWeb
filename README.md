@@ -57,3 +57,16 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## IA recommendations workflow
+
+The app now supports a full AI recommendation flow for missing ASVS measures:
+
+1. Automatically generates a JSON payload of missing measures (`FAIL` + unselected).
+2. Sends that payload to Google AI Studio (Gemini API) using your API key and model.
+3. Displays generated recommendations explaining what to implement, how to implement it, and best practices.
+
+Use the **"Recommandations IA sur les mesures manquantes"** card in the UI to:
+- Enter API key and model name.
+- Review the generated JSON payload.
+- Request and read generated recommendations.

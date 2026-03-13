@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DataService, Requirement, RequirementSection, VerificationItem } from './data.service';
+import { DataService, MissingMeasurePayload, Requirement, RequirementSection, VerificationItem } from './data.service';
 
 type VerificationStatus = 'PASS' | 'FAIL' | 'N/A' | '';
 
@@ -40,6 +40,13 @@ export class App implements OnInit {
   selectedRequirement?: Requirement;
   isLoading = true;
   errorMessage = '';
+
+  aiApiKey = '';
+  aiModel = 'gemini-1.5-flash';
+  aiRecommendations = '';
+  aiErrorMessage = '';
+  isGeneratingRecommendations = false;
+
   private readonly storageKey = 'asvs-selection-state-v1';
 
   constructor(
@@ -83,6 +90,42 @@ export class App implements OnInit {
     this.persistSelectionState();
   }
 
+  generateIaRecommendations(): void {
+    this.aiErrorMessage = '';
+    this.aiRecommendations = '';
+
+    if (!this.aiApiKey.trim()) {
+      this.aiErrorMessage = 'Veuillez saisir une clé API Google AI Studio.';
+      return;
+    }
+
+    const payload = this.missingMeasuresPayload;
+    if (payload.length === 0) {
+      this.aiErrorMessage = 'Aucune mesure manquante détectée (FAIL ou non sélectionnée).';
+      return;
+    }
+
+    this.isGeneratingRecommendations = true;
+
+    this.dataService.generateRecommendations(this.aiApiKey.trim(), this.aiModel.trim(), payload).subscribe({
+      next: (response) => {
+        const recommendationText =
+          response.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('\n').trim() ?? '';
+
+        this.aiRecommendations = recommendationText ||
+          'Aucune recommandation textuelle retournée par le modèle. Vérifiez la configuration du modèle et la réponse API.';
+        this.isGeneratingRecommendations = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.aiErrorMessage =
+          'Échec de la génération IA. Vérifiez la clé API, le modèle, le quota, et les règles CORS côté navigateur.';
+        this.isGeneratingRecommendations = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   get overallStats(): ComplianceStats {
     return this.computeStats(this.requirements.flatMap((requirement) => requirement.Items));
   }
@@ -96,6 +139,41 @@ export class App implements OnInit {
     return (this.selectedRequirement?.Items ?? [])
       .flatMap((section) => section.Items)
       .filter((item) => item.status === '');
+  }
+
+  get missingMeasuresPayload(): MissingMeasurePayload[] {
+    const payload: MissingMeasurePayload[] = [];
+
+    this.requirements.forEach((requirement) => {
+      requirement.Items.forEach((section) => {
+        section.Items.forEach((item) => {
+          const status: VerificationStatus = item.status ?? '';
+
+          if (status !== 'FAIL' && status !== '') {
+            return;
+          }
+
+          payload.push({
+            id: item.id,
+            asvs_level: item.asvs_level,
+            requirement: item.verification_requirement,
+            cwe: item.cwe,
+            requirement_shortcode: requirement.Shortcode,
+            section_shortcode: section.Shortcode,
+            status: status === 'FAIL' ? 'FAIL' : 'UNSELECTED',
+            comment: item.comment,
+            tool_used: item.tool_used,
+            source_code_reference: item.source_code_reference
+          });
+        });
+      });
+    });
+
+    return payload;
+  }
+
+  get missingMeasuresJson(): string {
+    return JSON.stringify(this.missingMeasuresPayload, null, 2);
   }
 
   private computeStats(sections: RequirementSection[]): ComplianceStats {

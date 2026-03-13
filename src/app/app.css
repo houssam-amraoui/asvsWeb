@@ -70,3 +70,15 @@
 .btn-status.active {
   box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
+
+.json-preview,
+.recommendation-preview {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  max-height: 320px;
+  overflow: auto;
+  font-size: 0.85rem;
+  margin-bottom: 0;
+}
