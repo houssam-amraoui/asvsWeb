@@ -1,7 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DataService, Requirement, VerificationItem } from './data.service';
+import { DataService, Requirement, RequirementSection, VerificationItem } from './data.service';
+
+type VerificationStatus = 'PASS' | 'FAIL' | 'N/A' | '';
+
+interface ComplianceStats {
+  total: number;
+  passed: number;
+  failed: number;
+  notApplicable: number;
+  unselected: number;
+  applicable: number;
+  score: number;
+}
 
 @Component({
   selector: 'app-root',
@@ -49,6 +61,57 @@ export class App implements OnInit {
 
   setStatus(item: VerificationItem, status: 'PASS' | 'FAIL' | 'N/A'): void {
     item.status = status;
+  }
+
+  get overallStats(): ComplianceStats {
+    return this.computeStats(this.requirements.flatMap((requirement) => requirement.Items));
+  }
+
+  get selectedRequirementStats(): ComplianceStats {
+    const sections = this.selectedRequirement?.Items ?? [];
+    return this.computeStats(sections);
+  }
+
+  get unselectedItems(): VerificationItem[] {
+    return (this.selectedRequirement?.Items ?? [])
+      .flatMap((section) => section.Items)
+      .filter((item) => item.status === '');
+  }
+
+  private computeStats(sections: RequirementSection[]): ComplianceStats {
+    const counters: ComplianceStats = {
+      total: 0,
+      passed: 0,
+      failed: 0,
+      notApplicable: 0,
+      unselected: 0,
+      applicable: 0,
+      score: 0
+    };
+
+    sections.forEach((section) => {
+      section.Items.forEach((item) => {
+        counters.total += 1;
+
+        const status: VerificationStatus = item.status ?? '';
+
+        if (status === 'PASS') {
+          counters.passed += 1;
+          counters.applicable += 1;
+        } else if (status === 'FAIL') {
+          counters.failed += 1;
+          counters.applicable += 1;
+        } else if (status === 'N/A') {
+          counters.notApplicable += 1;
+        } else {
+          counters.unselected += 1;
+        }
+      });
+    });
+
+    counters.score = counters.applicable > 0 ? Math.round((counters.passed / counters.applicable) * 100) : 0;
+
+    return counters;
   }
 
   private ensureItemStatuses(): void {
