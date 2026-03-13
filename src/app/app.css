@@ -1,0 +1,72 @@
+.app-shell {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+  background: #1d2430;
+  border-right: 1px solid #2f3a4a;
+}
+
+.requirement-list .list-group-item {
+  background: transparent;
+  color: #d8deea;
+  border-radius: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.requirement-list .list-group-item:hover {
+  background: #2a3444;
+  color: #ffffff;
+}
+
+.requirement-list .list-group-item.active {
+  background: #0d6efd;
+  color: #fff;
+}
+
+.accordion-custom .accordion-item {
+  border: 1px solid #d3dae4;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.accordion-custom .accordion-button {
+  background: #eef3fb;
+  font-weight: 600;
+}
+
+.accordion-custom .accordion-button:not(.collapsed) {
+  background: #dce8fb;
+  color: #1f3a63;
+}
+
+.verification-card {
+  border: 1px solid #dde4ef;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.verification-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.65rem 1.15rem rgba(0, 0, 0, 0.12);
+}
+
+.btn-status {
+  color: #fff;
+  border: 0;
+}
+
+.btn-pass {
+  background-color: #198754;
+}
+
+.btn-fail {
+  background-color: #dc3545;
+}
+
+.btn-na {
+  background-color: #6c757d;
+}
+
+.btn-status.active {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
