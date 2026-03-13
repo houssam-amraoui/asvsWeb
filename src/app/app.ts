@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DataService, Requirement, VerificationItem } from './data.service';
 
@@ -17,7 +17,10 @@ export class App implements OnInit {
   isLoading = true;
   errorMessage = '';
 
-  constructor(private readonly dataService: DataService) {}
+  constructor(
+    private readonly dataService: DataService,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.dataService.getAsvsData().subscribe({
@@ -28,11 +31,13 @@ export class App implements OnInit {
         this.selectedRequirement = data.Requirements[0];
         this.ensureItemStatuses();
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.errorMessage =
           'Unable to load ASVS data from src/assets/result.json. Please verify the file exists and is included in angular.json assets.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
