@@ -35,24 +35,24 @@
           <div class="accordion accordion-custom" id="asvsAccordion">
             @for (section of selectedRequirement.Items; track section.Shortcode; let sectionIndex = $index) {
               <div class="accordion-item mb-3">
-                <h2 class="accordion-header" [id]="'heading' + section.Shortcode">
+                <h2 class="accordion-header" [id]="'heading-' + sectionIndex">
                   <button
                     class="accordion-button"
                     [class.collapsed]="sectionIndex !== 0"
                     type="button"
                     data-bs-toggle="collapse"
-                    [attr.data-bs-target]="'#collapse' + section.Shortcode"
+                    [attr.data-bs-target]="'#collapse-' + sectionIndex"
                     [attr.aria-expanded]="sectionIndex === 0"
-                    [attr.aria-controls]="'collapse' + section.Shortcode"
+                    [attr.aria-controls]="'collapse-' + sectionIndex"
                   >
                     {{ section.Shortcode }} {{ section.Name }}
                   </button>
                 </h2>
                 <div
-                  [id]="'collapse' + section.Shortcode"
+                  [id]="'collapse-' + sectionIndex"
                   class="accordion-collapse collapse"
                   [class.show]="sectionIndex === 0"
-                  [attr.aria-labelledby]="'heading' + section.Shortcode"
+                  [attr.aria-labelledby]="'heading-' + sectionIndex"
                   data-bs-parent="#asvsAccordion"
                 >
                   <div class="accordion-body">
