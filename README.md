@@ -1,72 +1,97 @@
-# AsvsWeb
+# ASVS Auditor Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+A modern Angular web application to review OWASP ASVS controls, track verification status, and generate AI-powered remediation recommendations for missing security measures.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- Browse ASVS requirements from a local JSON dataset (`src/assets/result.json`).
+- Drill down by requirement, section, and verification item.
+- Mark each verification item as **PASS**, **FAIL**, or **N/A**.
+- Track auditor notes with:
+  - Comment
+  - Tool used
+  - Source code reference
+- View compliance indicators:
+  - Global compliance score
+  - Current requirement coverage
+  - PASS/FAIL/N/A/Unselected counters
+- Highlight unselected controls to speed up audit completion.
+- Persist audit progress in browser local storage.
+- Generate AI recommendations (Gemini API) for one selected missing measure at a time.
+- Preview the exact JSON payload sent to the AI model.
 
-```bash
-ng serve
-```
+## Technologies Used
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Angular 21** (standalone components)
+- **TypeScript**
+- **RxJS**
+- **Angular HTTP Client**
+- **Bootstrap 5.3** (via CDN)
+- **Google Gemini API** (`generateContent`) for AI recommendations
 
-## Code scaffolding
+## Installation
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Prerequisites
 
-```bash
-ng generate component component-name
-```
+- Node.js (recommended LTS)
+- npm
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Steps
 
-```bash
-ng generate --help
-```
+1. Clone the repository:
 
-## Building
+   ```bash
+   git clone <your-repository-url>
+   cd asvsWeb
+   ```
 
-To build the project run:
+2. Install dependencies:
 
-```bash
-ng build
-```
+   ```bash
+   npm install
+   ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+3. Configure AI settings (optional but required for AI recommendations):
 
-## Running unit tests
+   Edit `src/app/ai.config.ts` and set:
+   - `apiKey`: your Google AI Studio API key
+   - `model`: your Gemini model name (for example `gemini-3.1-flash-lite-preview`)
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Usage
 
-```bash
-ng test
-```
+1. Start the development server:
 
-## Running end-to-end tests
+   ```bash
+   npm start
+   ```
 
-For end-to-end (e2e) testing, run:
+2. Open the app:
 
-```bash
-ng e2e
-```
+   ```text
+   http://localhost:4200
+   ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+3. Audit workflow:
+   - Select a requirement from the left sidebar.
+   - Expand sections and review verification items.
+   - Set status (PASS / FAIL / N/A).
+   - Fill optional audit details (comment, tool used, source code reference).
+   - For missing controls (FAIL or unselected), select one item for AI.
+   - Click **Générer les recommandations IA** to receive remediation guidance.
 
-## Additional Resources
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Screenshots
 
-## IA recommendations workflow
+### Home
+![home](docs/screenshots/home.png)
+### Section
+![Section](docs/screenshots/items.png)
+### Verification Item
+![Verification Item](docs/screenshots/item.png)
+### Select Item
+![Select Item](docs/screenshots/select.png)
+### AI Result
+![iaresult](docs/screenshots/iaresult.png)
 
-The app now supports a full AI recommendation flow for missing ASVS measures:
 
-1. Automatically generates a JSON payload for one selected missing measure (`FAIL` or unselected).
-2. Sends that payload to Google AI Studio (Gemini API) using your API key and model.
-3. Displays generated recommendations explaining what to implement, how to implement it, and best practices.
 
-Use the **"Recommandations IA sur les mesures manquantes"** card in the UI to:
-- Configure API key and model in `src/app/ai.config.ts` (example model: `gemini-2.0-flash`).
-- Select one missing measure in the current requirement and review the generated JSON payload.
-- Request and read generated recommendations.
