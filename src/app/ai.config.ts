@@ -1,4 +1,4 @@
 export const AI_CONFIG = {
-  apiKey: 'AIzaSyAvbODUsvbzVhdlbTS4qfUNrWh3ojrcl10',
+  apiKey: 'api Key here',
   model: 'gemini-3.1-flash-lite-preview'
 };
