@@ -66,7 +66,7 @@
           @if (unselectedItems.length > 0) {
             <div class="alert alert-warning mb-4">
               <strong>Unselected measures detected:</strong>
-              <ul class="mb-0 mt-2 ps-3">
+              <ul class="mb-0 mt-2 ps-3 unselected-list-scroll">
                 @for (item of unselectedItems; track item.id) {
                   <li>{{ item.id }} — {{ item.verification_requirement }}</li>
                 }
@@ -74,17 +74,48 @@
             </div>
           }
 
+
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+              <h4 class="mb-3">Recommandations IA sur les mesures manquantes</h4>
+
+
+              <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+                <button class="btn btn-primary" (click)="generateIaRecommendations()" [disabled]="isGeneratingRecommendations">
+                  {{ isGeneratingRecommendations ? 'Génération en cours...' : 'Générer les recommandations IA' }}
+                </button>
+                <span class="text-muted small">Item sélectionné pour JSON/API: {{ selectedMissingMeasureId || 'Aucun' }}</span>
+              </div>
+
+              @if (aiErrorMessage) {
+                <div class="alert alert-danger mt-3 mb-0">{{ aiErrorMessage }}</div>
+              }
+
+              <div class="mt-3">
+                <label class="form-label">JSON généré automatiquement</label>
+                <pre class="json-preview">{{ missingMeasuresJson }}</pre>
+              </div>
+
+              @if (aiRecommendations) {
+                <div class="mt-3">
+                  <label class="form-label">Recommandations générées</label>
+                  <pre class="recommendation-preview">{{ aiRecommendations }}</pre>
+                </div>
+              }
+            </div>
+          </div>
+
           <div class="accordion accordion-custom" id="asvsAccordion">
             @for (section of selectedRequirement.Items; track section.Shortcode; let sectionIndex = $index) {
               <div class="accordion-item mb-3">
                 <h2 class="accordion-header" [id]="'heading-' + sectionIndex">
                   <button
                     class="accordion-button"
-                    [class.collapsed]="sectionIndex !== 0"
+                    [class.collapsed]="true"
                     type="button"
                     data-bs-toggle="collapse"
                     [attr.data-bs-target]="'#collapse-' + sectionIndex"
-                    [attr.aria-expanded]="sectionIndex === 0"
+                    [attr.aria-expanded]="false"
                     [attr.aria-controls]="'collapse-' + sectionIndex"
                   >
                     {{ section.Shortcode }} {{ section.Name }}
@@ -93,7 +124,7 @@
                 <div
                   [id]="'collapse-' + sectionIndex"
                   class="accordion-collapse collapse"
-                  [class.show]="sectionIndex === 0"
+                  [class.show]="false"
                   [attr.aria-labelledby]="'heading-' + sectionIndex"
                   data-bs-parent="#asvsAccordion"
                 >
@@ -132,6 +163,21 @@
                                 >
                                   N/A
                                 </button>
+                              </div>
+
+                              <div class="mb-3">
+                                <button
+                                  class="btn btn-sm"
+                                  [class.btn-outline-primary]="selectedMissingMeasureId !== item.id"
+                                  [class.btn-primary]="selectedMissingMeasureId === item.id"
+                                  [disabled]="!isItemEligibleForAi(item)"
+                                  (click)="toggleMissingMeasureSelection(item)"
+                                >
+                                  {{ selectedMissingMeasureId === item.id ? 'Mesure sélectionnée pour IA' : 'Sélectionner cette mesure pour IA' }}
+                                </button>
+                                @if (!isItemEligibleForAi(item)) {
+                                  <div class="form-text">Seules les mesures FAIL ou non sélectionnées peuvent être envoyées à l’IA.</div>
+                                }
                               </div>
 
                               <div class="mb-3">
