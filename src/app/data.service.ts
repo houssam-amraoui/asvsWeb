@@ -69,7 +69,8 @@ export class DataService {
   }
 
   generateRecommendations(apiKey: string, model: string, payload: MissingMeasurePayload): Observable<GeminiGenerateContentResponse> {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const normalizedModel = model.replace(/^models\//, '').trim();
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${normalizedModel}:generateContent?key=${apiKey}`;
 
     const prompt = [
       'Tu es un expert en sécurité applicative (OWASP ASVS).',

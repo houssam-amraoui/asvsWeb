@@ -216,6 +216,10 @@ export class App implements OnInit {
     const statusPart = error.status ? `HTTP ${error.status}` : 'Erreur réseau';
 
     if (apiMessage && apiMessage.trim()) {
+      if (error.status === 404 && apiMessage.includes('not found')) {
+        return `Échec de la génération IA (${statusPart}) : ${apiMessage} Essayez un modèle supporté pour generateContent, par exemple "gemini-2.0-flash" dans src/app/ai.config.ts.`;
+      }
+
       return `Échec de la génération IA (${statusPart}) : ${apiMessage}`;
     }
 
