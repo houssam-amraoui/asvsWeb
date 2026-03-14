@@ -83,15 +83,15 @@ A modern Angular web application to review OWASP ASVS controls, track verificati
 ## Screenshots
 
 ### Home
-![home](docs/screenshots/home.png)
+![home](docs/screenshots/home.PNG)
 ### Section
-![Section](docs/screenshots/items.png)
+![Section](docs/screenshots/items.PNG)
 ### Verification Item
-![Verification Item](docs/screenshots/item.png)
+![Verification Item](docs/screenshots/item.PNG)
 ### Select Item
-![Select Item](docs/screenshots/select.png)
+![Select Item](docs/screenshots/select.PNG)
 ### AI Result
-![iaresult](docs/screenshots/iaresult.png)
+![iaresult](docs/screenshots/iaresult.PNG)
 
 
 
