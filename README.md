@@ -67,6 +67,6 @@ The app now supports a full AI recommendation flow for missing ASVS measures:
 3. Displays generated recommendations explaining what to implement, how to implement it, and best practices.
 
 Use the **"Recommandations IA sur les mesures manquantes"** card in the UI to:
-- Enter API key and model name.
+- Configure API key and model in `src/app/ai.config.ts`.
 - Review the generated JSON payload.
 - Request and read generated recommendations.

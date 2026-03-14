@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AI_CONFIG } from './ai.config';
 import { DataService, MissingMeasurePayload, Requirement, RequirementSection, VerificationItem } from './data.service';
 
 type VerificationStatus = 'PASS' | 'FAIL' | 'N/A' | '';
@@ -41,8 +42,8 @@ export class App implements OnInit {
   isLoading = true;
   errorMessage = '';
 
-  aiApiKey = '';
-  aiModel = 'gemini-1.5-flash';
+  private readonly aiApiKey = AI_CONFIG.apiKey;
+  private readonly aiModel = AI_CONFIG.model;
   aiRecommendations = '';
   aiErrorMessage = '';
   isGeneratingRecommendations = false;
@@ -94,8 +95,8 @@ export class App implements OnInit {
     this.aiErrorMessage = '';
     this.aiRecommendations = '';
 
-    if (!this.aiApiKey.trim()) {
-      this.aiErrorMessage = 'Veuillez saisir une clé API Google AI Studio.';
+    if (!this.aiApiKey.trim() || this.aiApiKey === 'REPLACE_WITH_GOOGLE_AI_STUDIO_API_KEY') {
+      this.aiErrorMessage = 'Veuillez configurer la clé API dans src/app/ai.config.ts.';
       return;
     }
 
@@ -144,27 +145,30 @@ export class App implements OnInit {
   get missingMeasuresPayload(): MissingMeasurePayload[] {
     const payload: MissingMeasurePayload[] = [];
 
-    this.requirements.forEach((requirement) => {
-      requirement.Items.forEach((section) => {
-        section.Items.forEach((item) => {
-          const status: VerificationStatus = item.status ?? '';
+    const currentRequirement = this.selectedRequirement;
+    if (!currentRequirement) {
+      return payload;
+    }
 
-          if (status !== 'FAIL' && status !== '') {
-            return;
-          }
+    currentRequirement.Items.forEach((section) => {
+      section.Items.forEach((item) => {
+        const status: VerificationStatus = item.status ?? '';
 
-          payload.push({
-            id: item.id,
-            asvs_level: item.asvs_level,
-            requirement: item.verification_requirement,
-            cwe: item.cwe,
-            requirement_shortcode: requirement.Shortcode,
-            section_shortcode: section.Shortcode,
-            status: status === 'FAIL' ? 'FAIL' : 'UNSELECTED',
-            comment: item.comment,
-            tool_used: item.tool_used,
-            source_code_reference: item.source_code_reference
-          });
+        if (status !== 'FAIL' && status !== '') {
+          return;
+        }
+
+        payload.push({
+          id: item.id,
+          asvs_level: item.asvs_level,
+          requirement: item.verification_requirement,
+          cwe: item.cwe,
+          requirement_shortcode: currentRequirement.Shortcode,
+          section_shortcode: section.Shortcode,
+          status: status === 'FAIL' ? 'FAIL' : 'UNSELECTED',
+          comment: item.comment,
+          tool_used: item.tool_used,
+          source_code_reference: item.source_code_reference
         });
       });
     });
