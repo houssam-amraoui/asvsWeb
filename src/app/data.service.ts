@@ -68,18 +68,18 @@ export class DataService {
     return this.http.get<AsvsData>('assets/result.json');
   }
 
-  generateRecommendations(apiKey: string, model: string, payload: MissingMeasurePayload[]): Observable<GeminiGenerateContentResponse> {
+  generateRecommendations(apiKey: string, model: string, payload: MissingMeasurePayload): Observable<GeminiGenerateContentResponse> {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const prompt = [
       'Tu es un expert en sécurité applicative (OWASP ASVS).',
-      'Analyse uniquement les mesures manquantes au format JSON ci-dessous.',
-      'Pour chaque mesure, fournis:',
+      'Analyse uniquement la mesure manquante au format JSON ci-dessous.',
+      'Pour cette mesure, fournis:',
       '1) ce qu\'il faut implémenter,',
       '2) comment le faire (étapes concrètes),',
       '3) les bonnes pratiques à appliquer.',
-      'Réponds en français, en Markdown, avec une section par mesure (id).',
-      'JSON des mesures manquantes :',
+      'Réponds en français, en Markdown, avec une section pour cette mesure (id).',
+      'JSON de la mesure manquante :',
       JSON.stringify(payload, null, 2)
     ].join('\n');
 

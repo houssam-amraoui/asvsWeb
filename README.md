@@ -62,11 +62,11 @@ For more information on using the Angular CLI, including detailed command refere
 
 The app now supports a full AI recommendation flow for missing ASVS measures:
 
-1. Automatically generates a JSON payload of missing measures (`FAIL` + unselected).
+1. Automatically generates a JSON payload for one selected missing measure (`FAIL` or unselected).
 2. Sends that payload to Google AI Studio (Gemini API) using your API key and model.
 3. Displays generated recommendations explaining what to implement, how to implement it, and best practices.
 
 Use the **"Recommandations IA sur les mesures manquantes"** card in the UI to:
 - Configure API key and model in `src/app/ai.config.ts`.
-- Review the generated JSON payload.
+- Select one missing measure in the current requirement and review the generated JSON payload.
 - Request and read generated recommendations.

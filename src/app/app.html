@@ -91,7 +91,7 @@
                 <button class="btn btn-primary" (click)="generateIaRecommendations()" [disabled]="isGeneratingRecommendations">
                   {{ isGeneratingRecommendations ? 'Génération en cours...' : 'Générer les recommandations IA' }}
                 </button>
-                <span class="text-muted small">Mesures manquantes détectées (requirement sélectionné): {{ missingMeasuresPayload.length }}</span>
+                <span class="text-muted small">Item sélectionné pour JSON/API: {{ selectedMissingMeasureId || 'Aucun' }}</span>
               </div>
 
               @if (aiErrorMessage) {
@@ -99,7 +99,7 @@
               }
 
               <div class="mt-3">
-                <label class="form-label">JSON généré automatiquement (requirement sélectionné)</label>
+                <label class="form-label">JSON généré automatiquement (1 item sélectionné)</label>
                 <pre class="json-preview">{{ missingMeasuresJson }}</pre>
               </div>
 
@@ -170,6 +170,21 @@
                                 >
                                   N/A
                                 </button>
+                              </div>
+
+                              <div class="mb-3">
+                                <button
+                                  class="btn btn-sm"
+                                  [class.btn-outline-primary]="selectedMissingMeasureId !== item.id"
+                                  [class.btn-primary]="selectedMissingMeasureId === item.id"
+                                  [disabled]="!isItemEligibleForAi(item)"
+                                  (click)="toggleMissingMeasureSelection(item)"
+                                >
+                                  {{ selectedMissingMeasureId === item.id ? 'Mesure sélectionnée pour IA' : 'Sélectionner cette mesure pour IA' }}
+                                </button>
+                                @if (!isItemEligibleForAi(item)) {
+                                  <div class="form-text">Seules les mesures FAIL ou non sélectionnées peuvent être envoyées à l’IA.</div>
+                                }
                               </div>
 
                               <div class="mb-3">

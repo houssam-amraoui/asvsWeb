@@ -47,6 +47,7 @@ export class App implements OnInit {
   aiRecommendations = '';
   aiErrorMessage = '';
   isGeneratingRecommendations = false;
+  selectedMissingMeasureId = '';
 
   private readonly storageKey = 'asvs-selection-state-v1';
 
@@ -78,17 +79,41 @@ export class App implements OnInit {
 
   selectRequirement(requirement: Requirement): void {
     this.selectedRequirement = requirement;
+    this.selectedMissingMeasureId = '';
+    this.aiRecommendations = '';
+    this.aiErrorMessage = '';
     this.ensureItemStatuses();
     this.persistSelectionState();
   }
 
   setStatus(item: VerificationItem, status: 'PASS' | 'FAIL' | 'N/A'): void {
     item.status = status;
+
+    if (!this.isItemEligibleForAi(item) && this.selectedMissingMeasureId === item.id) {
+      this.selectedMissingMeasureId = '';
+      this.aiRecommendations = '';
+    }
+
     this.persistSelectionState();
   }
 
   onItemUpdated(): void {
     this.persistSelectionState();
+  }
+
+  isItemEligibleForAi(item: VerificationItem): boolean {
+    const status: VerificationStatus = item.status ?? '';
+    return status === 'FAIL' || status === '';
+  }
+
+  toggleMissingMeasureSelection(item: VerificationItem): void {
+    if (!this.isItemEligibleForAi(item)) {
+      return;
+    }
+
+    this.selectedMissingMeasureId = this.selectedMissingMeasureId === item.id ? '' : item.id;
+    this.aiRecommendations = '';
+    this.aiErrorMessage = '';
   }
 
   generateIaRecommendations(): void {
@@ -100,9 +125,9 @@ export class App implements OnInit {
       return;
     }
 
-    const payload = this.missingMeasuresPayload;
-    if (payload.length === 0) {
-      this.aiErrorMessage = 'Aucune mesure manquante détectée (FAIL ou non sélectionnée).';
+    const payload = this.selectedMissingMeasurePayload;
+    if (!payload) {
+      this.aiErrorMessage = 'Veuillez sélectionner une mesure manquante (FAIL ou non sélectionnée).';
       return;
     }
 
@@ -142,42 +167,43 @@ export class App implements OnInit {
       .filter((item) => item.status === '');
   }
 
-  get missingMeasuresPayload(): MissingMeasurePayload[] {
-    const payload: MissingMeasurePayload[] = [];
-
+  get selectedMissingMeasurePayload(): MissingMeasurePayload | null {
     const currentRequirement = this.selectedRequirement;
-    if (!currentRequirement) {
-      return payload;
+    if (!currentRequirement || !this.selectedMissingMeasureId) {
+      return null;
     }
 
-    currentRequirement.Items.forEach((section) => {
-      section.Items.forEach((item) => {
-        const status: VerificationStatus = item.status ?? '';
+    for (const section of currentRequirement.Items) {
+      const item = section.Items.find((currentItem) => currentItem.id === this.selectedMissingMeasureId);
+      if (!item) {
+        continue;
+      }
 
-        if (status !== 'FAIL' && status !== '') {
-          return;
-        }
+      if (!this.isItemEligibleForAi(item)) {
+        return null;
+      }
 
-        payload.push({
-          id: item.id,
-          asvs_level: item.asvs_level,
-          requirement: item.verification_requirement,
-          cwe: item.cwe,
-          requirement_shortcode: currentRequirement.Shortcode,
-          section_shortcode: section.Shortcode,
-          status: status === 'FAIL' ? 'FAIL' : 'UNSELECTED',
-          comment: item.comment,
-          tool_used: item.tool_used,
-          source_code_reference: item.source_code_reference
-        });
-      });
-    });
+      const status: VerificationStatus = item.status ?? '';
 
-    return payload;
+      return {
+        id: item.id,
+        asvs_level: item.asvs_level,
+        requirement: item.verification_requirement,
+        cwe: item.cwe,
+        requirement_shortcode: currentRequirement.Shortcode,
+        section_shortcode: section.Shortcode,
+        status: status === 'FAIL' ? 'FAIL' : 'UNSELECTED',
+        comment: item.comment,
+        tool_used: item.tool_used,
+        source_code_reference: item.source_code_reference
+      };
+    }
+
+    return null;
   }
 
   get missingMeasuresJson(): string {
-    return JSON.stringify(this.missingMeasuresPayload, null, 2);
+    return JSON.stringify(this.selectedMissingMeasurePayload ?? {}, null, 2);
   }
 
   private computeStats(sections: RequirementSection[]): ComplianceStats {
