@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AI_CONFIG } from './ai.config';
@@ -143,9 +144,8 @@ export class App implements OnInit {
         this.isGeneratingRecommendations = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.aiErrorMessage =
-          'Échec de la génération IA. Vérifiez la clé API, le modèle, le quota, et les règles CORS côté navigateur.';
+      error: (error: HttpErrorResponse) => {
+        this.aiErrorMessage = this.buildIaErrorMessage(error);
         this.isGeneratingRecommendations = false;
         this.cdr.detectChanges();
       }
@@ -204,6 +204,26 @@ export class App implements OnInit {
 
   get missingMeasuresJson(): string {
     return JSON.stringify(this.selectedMissingMeasurePayload ?? {}, null, 2);
+  }
+
+
+  private buildIaErrorMessage(error: HttpErrorResponse): string {
+    const apiMessage =
+      (error.error?.error?.message as string | undefined) ??
+      (error.error?.message as string | undefined) ??
+      (typeof error.error === 'string' ? error.error : undefined);
+
+    const statusPart = error.status ? `HTTP ${error.status}` : 'Erreur réseau';
+
+    if (apiMessage && apiMessage.trim()) {
+      return `Échec de la génération IA (${statusPart}) : ${apiMessage}`;
+    }
+
+    if (error.status === 0) {
+      return 'Échec de la génération IA : requête bloquée ou inaccessible (CORS/réseau). Vérifiez que la clé API Google AI Studio est valide et autorisée pour Generative Language API.';
+    }
+
+    return 'Échec de la génération IA. Vérifiez la clé API, le modèle, le quota, et les autorisations de votre clé API.';
   }
 
   private computeStats(sections: RequirementSection[]): ComplianceStats {
