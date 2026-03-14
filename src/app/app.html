@@ -78,14 +78,7 @@
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
               <h4 class="mb-3">Recommandations IA sur les mesures manquantes</h4>
-              <p class="text-secondary mb-3">
-                Flux: génération automatique du JSON des mesures manquantes (FAIL + non sélectionnées), envoi à l'API IA,
-                puis affichage des recommandations.
-              </p>
 
-              <div class="alert alert-info mb-0">
-                La clé API et le modèle sont configurés dans <code>src/app/ai.config.ts</code>.
-              </div>
 
               <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
                 <button class="btn btn-primary" (click)="generateIaRecommendations()" [disabled]="isGeneratingRecommendations">
@@ -99,7 +92,7 @@
               }
 
               <div class="mt-3">
-                <label class="form-label">JSON généré automatiquement (1 item sélectionné)</label>
+                <label class="form-label">JSON généré automatiquement</label>
                 <pre class="json-preview">{{ missingMeasuresJson }}</pre>
               </div>
 
@@ -118,11 +111,11 @@
                 <h2 class="accordion-header" [id]="'heading-' + sectionIndex">
                   <button
                     class="accordion-button"
-                    [class.collapsed]="sectionIndex !== 0"
+                    [class.collapsed]="true"
                     type="button"
                     data-bs-toggle="collapse"
                     [attr.data-bs-target]="'#collapse-' + sectionIndex"
-                    [attr.aria-expanded]="sectionIndex === 0"
+                    [attr.aria-expanded]="false"
                     [attr.aria-controls]="'collapse-' + sectionIndex"
                   >
                     {{ section.Shortcode }} {{ section.Name }}
@@ -131,7 +124,7 @@
                 <div
                   [id]="'collapse-' + sectionIndex"
                   class="accordion-collapse collapse"
-                  [class.show]="sectionIndex === 0"
+                  [class.show]="false"
                   [attr.aria-labelledby]="'heading-' + sectionIndex"
                   data-bs-parent="#asvsAccordion"
                 >
