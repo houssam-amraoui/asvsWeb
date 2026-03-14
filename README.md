@@ -79,44 +79,19 @@ A modern Angular web application to review OWASP ASVS controls, track verificati
    - For missing controls (FAIL or unselected), select one item for AI.
    - Click **Générer les recommandations IA** to receive remediation guidance.
 
-4. Build for production:
 
-   ```bash
-   npm run build
-   ```
+## Screenshots
 
-5. Run unit tests:
+### Home
+![home](docs/screenshots/home.png)
+### Section
+![Section](docs/screenshots/items.png)
+### Verification Item
+![Verification Item](docs/screenshots/item.png)
+### Select Item
+![Select Item](docs/screenshots/select.png)
+### AI Result
+![iaresult](docs/screenshots/iaresult.png)
 
-   ```bash
-   npm test
-   ```
 
-## Project Structure
 
-```text
-asvsWeb/
-├── angular.json
-├── package.json
-├── src/
-│   ├── app/
-│   │   ├── ai.config.ts          # AI API key + model configuration
-│   │   ├── app.ts                # Main component logic and state handling
-│   │   ├── app.html              # Main UI template
-│   │   ├── app.css               # Component styles
-│   │   └── data.service.ts       # ASVS data loading + Gemini API calls
-│   ├── assets/
-│   │   └── result.json           # ASVS dataset consumed by the app
-│   ├── index.html                # App shell + Bootstrap CDN
-│   └── styles.css                # Global styles
-└── README.md
-```
-
-## Example Screenshot Placeholder (AI Result)
-
-> Replace this placeholder with a real screenshot once available.
-
-![AI recommendation result placeholder](docs/screenshots/ai-result-placeholder.png)
-
----
-
-If you use this project in a real audit pipeline, consider moving secrets (API keys) to secure environment configuration instead of committing them in source files.
